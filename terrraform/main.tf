@@ -183,6 +183,7 @@ resource "aws_instance" "ec2_instance" {
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.id  # Asignar el perfil de instancia
 
   user_data = data.template_cloudinit_config.config.rendered
+    # user_data = file("scripts/install-dependencies.sh")
     tags = {
     Name = var.ec2_name
   }
