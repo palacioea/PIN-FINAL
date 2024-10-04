@@ -1,4 +1,7 @@
 #!/bin/bash
 
 #Configurar kubctl
-aws eks update-kubeconfig --name ${aws_eks_cluster.eks_cluster.name} --region ${var.region}
+AWS_REGION="$1"
+CLUSTER_NAME="$2"
+
+aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION

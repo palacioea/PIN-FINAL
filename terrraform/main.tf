@@ -182,8 +182,15 @@ resource "aws_instance" "ec2_instance" {
   vpc_security_group_ids = [aws_security_group.ec2_sg.id]
   iam_instance_profile   = aws_iam_instance_profile.ec2_profile.id  # Asignar el perfil de instancia
 
-  user_data = data.template_cloudinit_config.config.rendered
+  # user_data = data.template_cloudinit_config.config.rendered
     # user_data = file("scripts/install-dependencies.sh")
+    user_data = templatefile("user_data.tpl", {
+    region                   = var.region,
+    cluster_name             = aws_eks_cluster.eks_cluster.name,
+    install_dependencies_script = "scripts/install-dependencies.sh",
+    configure_app_script     = "scripts/eks.sh",
+  })
+
     tags = {
     Name = var.ec2_name
   }

@@ -58,12 +58,6 @@ variable "ec2_instance_type" {
   default     = "t2.micro"
 }
 
-variable "user_data_scripts" {
-  description = "List of scripts to include in user_data"
-  type        = list(string)
-  default     = ["install-dependencies.sh", "eks.sh"]
-}
-
 variable "ec2_key_name" {
   description = "Name of the key pair to connect to EC2"
   type        = string
