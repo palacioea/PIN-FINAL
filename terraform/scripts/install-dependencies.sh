@@ -76,3 +76,4 @@ rm -rf /tmp/awscliv2.zip /tmp/aws /tmp/eksctl.tar.gz
 
 ## Configurar kubectl
 aws eks update-kubeconfig --name eks-mundos-e --region us-east-1
+
