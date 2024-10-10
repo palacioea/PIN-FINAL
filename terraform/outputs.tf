@@ -1,16 +1,16 @@
-output "Ip de la instancia" {
+output "Ip-de-la-instancia" {
   value = aws_instance.ec2_instance.public_ip
 }
 
-output "Nombre del Proyecto" {
+output "Nombre-del-Proyecto" {
   value = aws_instance.ec2_instance.tags["Name"]
 }
 
-output "Eks - Nombre del cluster" {
+output "Eks-Nombre-del-cluster" {
   value = aws_eks_cluster.eks_cluster.name
 }
 
-output "Estado de la instancia" {
+output "Estado-de-la-instancia" {
   value = aws_instance.ec2_instance.instance_state
 }
 
