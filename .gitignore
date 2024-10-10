@@ -2,4 +2,4 @@
 .terraform*
 terraform.tfs*
 .vscode/
-terrraform/terraform.tfvars
+terraform/terraform.tfvars

@@ -9,5 +9,3 @@ node_group_instance_type = "t3.small"
 ec2_instance_type = "t2.micro"
 ec2_name = "DevOps-Project"
 ec2_key_name = "devops"
-#Agregar los scripts que se necesiten
-user_data_scripts =[]
