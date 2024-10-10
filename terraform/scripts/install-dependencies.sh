@@ -2,7 +2,7 @@
 
 #Configurar kubctl
 AWS_REGION="us-east-1"
-CLUSTER_NAME="eks-mundos-e01"
+CLUSTER_NAME="eks-mundos-e"
 
 # Actualizar el caché de paquetes
 sudo apt update
@@ -75,4 +75,4 @@ rm -rf /tmp/awscliv2.zip /tmp/aws /tmp/eksctl.tar.gz
 
 
 ## Configurar kubectl
-aws eks update-kubeconfig --name $CLUSTER_NAME --region $AWS_REGION
+aws eks update-kubeconfig --name eks-mundos-e --region us-east-1

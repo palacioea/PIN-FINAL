@@ -68,3 +68,8 @@ variable "ec2_name" {
   type        = string
   default     = ""
 }
+
+variable "grafana_pass" {
+  description = "Nombre de la instancia EC2"
+  type        = string
+}

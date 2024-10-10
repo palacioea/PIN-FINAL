@@ -1,0 +1,2 @@
+[DevOps-Project]
+3.239.230.8 ansible_ssh_private_key_file=../../devopsPin.pem ansible_user=ubuntu

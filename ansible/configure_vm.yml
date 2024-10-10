@@ -1,0 +1,141 @@
+---
+- name: Configure EC2 Instance
+  hosts: all
+  become: yes
+  tasks:
+    - name: Install unzip
+      apt:
+        name: unzip
+        state: present
+        update_cache: yes
+
+    - name: Check if AWS CLI is installed
+      command: aws --version
+      register: aws_cli_installed
+      ignore_errors: yes
+
+    - name: Install AWS CLI
+      block:
+        - name: Download AWS CLI Installer
+          get_url:
+            url: "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip"
+            dest: "/tmp/awscliv2.zip"
+
+        - name: Unzip AWS CLI installer
+          unarchive:
+            src: "/tmp/awscliv2.zip"
+            dest: "/tmp/"
+            remote_src: yes
+
+        - name: Install AWS CLI
+          command: "/tmp/aws/install"
+      when: aws_cli_installed.rc != 0
+
+    - name: Update AWS CLI
+      command: "/tmp/aws/install --update"
+      when: aws_cli_installed.rc == 0  
+
+    - name: Download kubectl
+      get_url:
+        url: "https://s3.us-west-2.amazonaws.com/amazon-eks/1.26.2/2023-03-17/bin/linux/amd64/kubectl"
+        dest: "/usr/local/bin/kubectl"
+        mode: '0755'
+
+    - name: Set up kubectl path
+      lineinfile:
+        path: /home/{{ ansible_user }}/.bashrc
+        line: 'export PATH=$PATH:/usr/local/bin'
+        state: present
+        
+    - name: Install eksctl
+      get_url:
+        url: "https://github.com/weaveworks/eksctl/releases/latest/download/eksctl_Linux_amd64.tar.gz"
+        dest: "/tmp/eksctl.tar.gz"
+        
+    - name: Extract eksctl
+      unarchive:
+        src: "/tmp/eksctl.tar.gz"
+        dest: "/tmp/"
+        remote_src: yes
+
+    - name: Move eksctl to /usr/local/bin
+      command: mv /tmp/eksctl /usr/local/bin/eksctl  
+      args:
+        removes: /usr/local/bin/eksctl
+
+    - name: Install Docker prerequisites
+      apt:
+        name: 
+          - ca-certificates
+          - curl
+        state: present
+        update_cache: yes
+
+    - name: Add Docker's official GPG key
+      apt_key:
+        url: "https://download.docker.com/linux/ubuntu/gpg"
+        state: present
+
+    - name: Add Docker repository
+      apt_repository:
+        repo: "deb [arch=amd64] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+        state: present
+
+    - name: Install Docker
+      apt:
+        name: docker-ce
+        state: latest
+        update_cache: yes
+
+    - name: Start and enable Docker service
+      service:
+        name: docker
+        enabled: yes
+        state: started
+
+    - name: Add Helm GPG key
+      apt_key:
+        url: "https://baltocdn.com/helm/signing.asc"
+        state: present
+        validate_certs: yes
+
+    - name: Download and add Helm GPG key
+      shell: |
+        curl -fsSL https://baltocdn.com/helm/signing.asc | gpg --dearmor -o /usr/share/keyrings/helm.gpg
+      args:
+        creates: /usr/share/keyrings/helm.gpg
+
+    - name: Add Helm repository
+      apt_repository:
+        repo: "deb [signed-by=/usr/share/keyrings/helm.gpg] https://baltocdn.com/helm/stable/debian/ all main"
+        state: present
+
+    - name: Install Terraform Keys
+      shell: |
+        wget -O- https://apt.releases.hashicorp.com/gpg | gpg --dearmor | sudo tee /usr/share/keyrings/hashicorp-archive-keyring.gpg > /dev/null
+      ignore_errors: yes
+
+    - name: Verify Terraform keys
+      shell: |
+        gpg --no-default-keyring --keyring /usr/share/keyrings/hashicorp-archive-keyring.gpg --fingerprint
+      ignore_errors: yes  
+
+    - name: Add Terraform repository
+      shell: |
+        echo "deb [signed-by=/usr/share/keyrings/hashicorp-archive-keyring.gpg] https://apt.releases.hashicorp.com $(lsb_release -cs) main" | sudo tee /etc/apt/sources.list.d/hashicorp.list
+      ignore_errors: yes
+
+    - name: Install Terraform
+      apt:
+        name: terraform
+        state: latest
+        update_cache: yes
+
+    - name: Update kubeconfig for EKS
+      command: >
+        aws eks update-kubeconfig --name eks-mundos-e --region us-east-1
+      register: kubeconfig_update
+
+    - name: Print kubeconfig update result
+      debug:
+        var: kubeconfig_update.stdout
